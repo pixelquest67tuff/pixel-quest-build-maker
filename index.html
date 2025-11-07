@@ -1,65 +1,62 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Build Maker — Quest stat picker</title>
-<script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pixel Quest Build Maker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen p-6">
-<div class="max-w-4xl mx-auto">
-<header class="mb-6">
-<h1 class="text-3xl font-semibold">Build Maker — Quest stat picker</h1>
-<p class="text-sm text-slate-600">Pick quests, choose one of two stat rewards for each.</p>
-</header>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200 min-h-screen p-6 transition-colors">
+  <div class="max-w-5xl mx-auto">
+    <header class="mb-6 flex justify-between items-center">
+      <div>
+        <h1 class="text-3xl font-semibold">Pixel Quest Build Maker</h1>
+        <p class="text-sm text-slate-600 dark:text-slate-400">Pick quests, equip items, and share your build link.</p>
+      </div>
+      <button id="themeToggle" class="p-2 rounded border dark:border-slate-700">🌙</button>
+    </header>
 
+    <main class="grid md:grid-cols-2 gap-6">
+      <section>
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow p-4">
+          <h2 class="text-xl font-medium mb-3">Available Quests</h2>
+          <div id="quests" class="space-y-3"></div>
+        </div>
 
-<main class="grid md:grid-cols-2 gap-6">
-<section>
-<div class="bg-white rounded-xl shadow p-4">
-<h2 class="text-xl font-medium mb-3">Available quests</h2>
-<div id="quests" class="space-y-3"></div>
-</div>
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow p-4 mt-4">
+          <h2 class="text-xl font-medium mb-3">Share / Load</h2>
+          <div class="flex gap-2 mb-3">
+            <button id="generateLink" class="px-3 py-2 rounded bg-indigo-600 text-white">Generate Link</button>
+            <button id="copyLink" class="px-3 py-2 rounded border">Copy Link</button>
+            <button id="clear" class="px-3 py-2 rounded border">Clear Build</button>
+          </div>
+          <input id="linkField" class="w-full rounded border p-2 text-sm dark:bg-slate-900" readonly />
+          <p class="text-xs text-slate-500 mt-2">Build data is stored in the URL (after #) — no server saving.</p>
+        </div>
+      </section>
 
+      <section>
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow p-4">
+          <h2 class="text-xl font-medium mb-3">Your Build</h2>
+          <div id="buildList" class="space-y-2 mb-3"></div>
+          <div class="border-t border-slate-300 dark:border-slate-700 pt-3">
+            <h3 class="font-medium">Total Stats</h3>
+            <div id="totals" class="text-sm text-slate-700 dark:text-slate-300 mt-2"></div>
+          </div>
+        </div>
 
-<div class="bg-white rounded-xl shadow p-4 mt-4">
-<h2 class="text-xl font-medium mb-3">Share / Load</h2>
-<div class="flex gap-2 mb-3">
-<button id="generateLink" class="px-3 py-2 rounded bg-indigo-600 text-white">Generate link</button>
-<button id="copyLink" class="px-3 py-2 rounded border">Copy link</button>
-<button id="clear" class="px-3 py-2 rounded border">Clear build</button>
-</div>
-<input id="linkField" class="w-full rounded border p-2 text-sm" readonly />
-<p class="text-xs text-slate-500 mt-2">Tip: Block Parry Dodge.</p>
-</div>
-</section>
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow p-4 mt-4">
+          <h2 class="text-xl font-medium mb-3">Equipment</h2>
+          <div class="grid grid-cols-2 gap-3" id="equipmentGrid"></div>
+        </div>
+      </section>
+    </main>
 
-
-<section>
-<div class="bg-white rounded-xl shadow p-4">
-<h2 class="text-xl font-medium mb-3">Your build</h2>
-<div id="buildList" class="space-y-2 mb-3"></div>
-<div class="border-t pt-3">
-<h3 class="font-medium">Total stats</h3>
-<div id="totals" class="text-sm text-slate-700 mt-2"></div>
-</div>
-</div>
-
-
-<div class="bg-white rounded-xl shadow p-4 mt-4">
-<h2 class="text-xl font-medium mb-3">Quick export</h2>
-<button id="copyTextExport" class="px-3 py-2 rounded bg-emerald-500 text-white">Copy simple export</button>
-<p class="text-xs text-slate-500 mt-2">Exports a summary of your build.</p>
-</div>
-</section>
-</main>
-
-
-<footer class="text-xs text-slate-500 mt-6">Built for the Roblox game Pixel Quest!</footer>
-</div>
-
+    <footer class="text-xs text-slate-500 mt-6 dark:text-slate-400">© Pixel Quest Build Maker — GitHub Pages Compatible</footer>
+  </div>
 
 <script>
+
 const QUESTS = [
 {id:'q01',title:'Beach Boss Slayer III',desc:'',rewards:[{stat:'Attack',amount:2},{stat:'Dexterity',amount:3}]},
 {id:'q02',title:'Mermaid Cove Explorer',desc:'',rewards:[{stat:'Vitality',amount:3},{stat:'Dexterity',amount:2}]},
@@ -95,216 +92,158 @@ const QUESTS = [
 {id:'q32',title:'Arctic Palace Speedrunner',desc:'',rewards:[{stat:'Speed',amount:5},{stat:'Defense',amount:3}]}
 ];
 
+const ITEMS = [
+  {id:'placeholder',name:'Placeholder',tier:'Legendary',slot:'Weapon',type:'Bow',stats:{rateOfFire:0.75,armorPen:25,shotsPerAttack:1,range:8,valorBonus:15,Attack:10,Dexterity:5},effects:['On Stat: At 45 WIS, gain 3 additional projectiles dealing 10–15 damage.']},
+];
+
 let build = [];
+let equipment = {Weapon:null,Ability:null,Armor:null,Accessory:null};
 
 function renderQuests(){
-  const container = document.getElementById('quests');
-  container.innerHTML = '';
+  const c = document.getElementById('quests');
+  c.innerHTML = '';
   QUESTS.forEach(q => {
     const el = document.createElement('div');
-    el.className = 'p-3 border rounded-md bg-slate-50';
+    el.className = 'p-3 border rounded-md bg-slate-50 dark:bg-slate-700';
     el.innerHTML = `
-      <div class="flex justify-between items-start">
-        <div>
-          <div class="font-medium">${q.title}</div>
-          <div class="text-xs text-slate-600">${q.desc}</div>
-        </div>
-        <div class="text-xs text-slate-500">${q.rewards[0].amount} / ${q.rewards[1].amount}</div>
-      </div>
-      <div class="mt-3 flex gap-2">
-        <button class="chooseBtn px-3 py-1 rounded border" data-qid="${q.id}" data-choice="0">Choose ${q.rewards[0].stat} (+${q.rewards[0].amount})</button>
-        <button class="chooseBtn px-3 py-1 rounded border" data-qid="${q.id}" data-choice="1">Choose ${q.rewards[1].stat} (+${q.rewards[1].amount})</button>
+      <div class="font-medium">${q.title}</div>
+      <div class="mt-2 flex gap-2">
+        ${q.rewards.map((r,i)=>`<button class='chooseBtn px-2 py-1 border rounded text-sm' data-qid='${q.id}' data-choice='${i}'>${r.stat} +${r.amount}</button>`).join('')}
       </div>
     `;
-    container.appendChild(el);
+    c.appendChild(el);
   });
-
-  document.querySelectorAll('.chooseBtn').forEach(b => {
-    b.addEventListener('click', () => {
-      const qid = b.dataset.qid;
-      const choice = Number(b.dataset.choice);
-      addToBuild(qid, choice);
-    });
-  });
-}
-
-function addToBuild(questId, choiceIndex){
-  if(build.some(item => item.questId === questId)){
-    alert('You already picked that quest. Remove it first if you want to change.');
-    return;
-  }
-  const item = { id: cryptoRandomId(), questId, choiceIndex };
-  build.push(item);
-  saveToLocal();
-  renderBuild();
-  updateLinkField();
-}
-
-function removeFromBuild(id){
-  build = build.filter(x => x.id !== id);
-  saveToLocal();
-  renderBuild();
-  updateLinkField();
+  document.querySelectorAll('.chooseBtn').forEach(b=>b.onclick = () => addToBuild(b.dataset.qid, Number(b.dataset.choice)));
 }
 
 function renderBuild(){
-  const el = document.getElementById('buildList');
-  el.innerHTML = '';
-  if(build.length === 0){
-    el.innerHTML = '<div class="text-slate-500">No quests selected yet.</div>';
-  }
+  const b = document.getElementById('buildList');
+  b.innerHTML = '';
+  if(!build.length){ b.innerHTML = '<div class="text-slate-500">No quests selected.</div>'; }
   build.forEach(item => {
-    const q = QUESTS.find(x => x.id === item.questId);
-    const choice = q.rewards[item.choiceIndex];
-    const row = document.createElement('div');
-    row.className = 'flex justify-between items-center p-2 border rounded';
-    row.innerHTML = `
-      <div>
-        <div class="font-medium">${q.title}</div>
-        <div class="text-xs text-slate-600">Picked: ${choice.stat} (+${choice.amount})</div>
-      </div>
-      <div class="flex gap-2 items-center">
-        <button class="text-sm px-2 py-1 border rounded" onclick="removeFromBuild('${item.id}')">Remove</button>
-      </div>
-    `;
-    el.appendChild(row);
+    const q = QUESTS.find(x=>x.id===item.questId);
+    const r = q.rewards[item.choiceIndex];
+    const div = document.createElement('div');
+    div.className = 'flex justify-between items-center p-2 border rounded';
+    div.innerHTML = `<div><div class='font-medium'>${q.title}</div><div class='text-xs'>${r.stat} +${r.amount}</div></div><button class='border rounded px-2 py-1 text-xs' onclick='removeFromBuild("${item.id}")'>Remove</button>`;
+    b.appendChild(div);
   });
   renderTotals();
 }
 
-function renderTotals(){
-  const totals = {};
-  build.forEach(item => {
-    const q = QUESTS.find(x => x.id === item.questId);
-    const r = q.rewards[item.choiceIndex];
-    totals[r.stat] = (totals[r.stat] || 0) + r.amount;
+function renderEquipment(){
+  const g = document.getElementById('equipmentGrid');
+  g.innerHTML = '';
+  ['Weapon','Ability','Armor','Accessory'].forEach(slot => {
+    const e = equipment[slot];
+    const div = document.createElement('div');
+    div.className = 'p-3 border rounded text-sm cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700';
+    div.innerHTML = `<div class='font-semibold'>${slot}</div><div class='text-xs text-slate-500 dark:text-slate-400'>${e?e.name+' ('+e.tier+')':'Empty'}</div>`;
+    div.onclick = () => selectItem(slot);
+    g.appendChild(div);
   });
-  const container = document.getElementById('totals');
-  if(Object.keys(totals).length === 0){
-    container.innerHTML = '<div class="text-slate-500">No stat gains yet.</div>';
-    return;
-  }
-  container.innerHTML = Object.keys(totals).map(s => `<div>${s}: <strong>${totals[s]}</strong></div>`).join('');
 }
 
-function encodeBuild(b){
-  const json = JSON.stringify(b);
-  return btoa(encodeURIComponent(json));
+function addToBuild(questId, choiceIndex){
+  if(build.some(x=>x.questId===questId)){ alert('Quest already picked'); return; }
+  build.push({ id: cryptoId(), questId, choiceIndex });
+  renderBuild();
+  updateLink();
 }
-function decodeBuild(s){
+
+function removeFromBuild(id){ build = build.filter(x=>x.id!==id); renderBuild(); updateLink(); }
+
+function selectItem(slot){
+  const pool = ITEMS.filter(i=>i.slot===slot);
+  const choice = prompt('Select '+slot+' by name:\n'+pool.map(i=>i.name+' ('+i.tier+')').join('\n'));
+  const item = pool.find(i=>i.name.toLowerCase()=== (choice||'').toLowerCase());
+  if(!item){ alert('Invalid item'); return; }
+  equipment[slot] = item;
+  renderEquipment(); renderTotals(); updateLink();
+}
+
+function renderTotals(){
+  const totals = {};
+  build.forEach(i=>{
+    const q = QUESTS.find(x=>x.id===i.questId);
+    const r = q.rewards[i.choiceIndex];
+    totals[r.stat] = (totals[r.stat]||0) + r.amount;
+  });
+  Object.values(equipment).forEach(it=>{
+    if(!it) return;
+    for(const [k,v] of Object.entries(it.stats || {})){
+      if(['Attack','Defense','Speed','Wisdom','Dexterity','Vitality'].includes(k)){
+        totals[k] = (totals[k]||0) + v;
+      }
+    }
+  });
+  const t = document.getElementById('totals');
+  if(!Object.keys(totals).length){ t.innerHTML = '<div class="text-slate-500">No stats yet.</div>'; return; }
+  t.innerHTML = Object.keys(totals).map(s=>`<div>${s}: <strong>${totals[s]}</strong></div>`).join('');
+}
+
+function encodeData(){
   try{
-    const json = decodeURIComponent(atob(s));
-    return JSON.parse(json);
+    const equipmentIds = Object.fromEntries(
+      Object.entries(equipment).map(([s, i]) => [s, i ? i.id : null])
+    );
+    const payload = { build, equipmentIds };
+    return btoa(encodeURIComponent(JSON.stringify(payload)));
   }catch(e){
+    console.error('encodeData error', e);
+    return '';
+  }
+}
+
+function decodeData(s){
+  try{
+    return JSON.parse(decodeURIComponent(atob(s)));
+  }catch(e){
+    console.error('decodeData error', e);
     return null;
   }
 }
 
-function updateLinkField(){
-  const linkField = document.getElementById('linkField');
-  if(build.length === 0){ linkField.value = ''; return; }
-  const encoded = encodeBuild(build);
-  const url = window.location.origin + window.location.pathname + '#build=' + encoded;
-  linkField.value = url;
-}
-
-function generateLink(){
-  if(build.length === 0){ alert('No quests selected.'); return; }
-  const encoded = encodeBuild(build);
-  const newUrl = window.location.origin + window.location.pathname + '#build=' + encoded;
-  window.history.replaceState(null, '', newUrl);
-  updateLinkField();
-  alert('Link generated. You can copy it or share it.');
+function updateLink(){
+  const f = document.getElementById('linkField');
+  const hasData = build.length || Object.values(equipment).some(x=>x);
+  if(!hasData){ f.value = ''; return; }
+  const encoded = encodeData();
+  f.value = location.origin + location.pathname + '#data=' + encoded;
 }
 
 function loadFromFragment(){
-  const frag = window.location.hash;
-  if(!frag) return;
-  const m = frag.match(/build=([^&]+)/);
+  const m = location.hash.match(/data=([^&]+)/);
   if(!m) return;
-  const decoded = decodeBuild(m[1]);
-  if(!decoded || !Array.isArray(decoded)){
-    alert('Couldnt parse build from link.');
-    return;
-  }
-  const imported = [];
-  for(const item of decoded){
-    if(!item.questId || typeof item.choiceIndex !== 'number') continue;
-    if(!QUESTS.find(q=>q.id===item.questId)) continue;
-    imported.push({ id: cryptoRandomId(), questId: item.questId, choiceIndex: item.choiceIndex });
-  }
-  build = imported;
-  saveToLocal();
-  renderBuild();
-  updateLinkField();
-}
-
-function copyLinkField(){
-  const f = document.getElementById('linkField');
-  if(!f.value){ alert('No link to copy. generate one first fuckiung idiot!'); return; }
-  f.select();
-  document.execCommand('copy');
-  alert('Link copied to clipboard.');
-}
-
-function copyTextExport(){
-  if(build.length === 0){ alert('No quests selected.'); return; }
-  const lines = build.map(item => {
-    const q = QUESTS.find(x => x.id === item.questId);
-    const r = q.rewards[item.choiceIndex];
-    return `${q.title} — ${r.stat} (+${r.amount})`;
-  });
-  const totals = {};
-  build.forEach(item => {
-    const q = QUESTS.find(x => x.id === item.questId);
-    const r = q.rewards[item.choiceIndex];
-    totals[r.stat] = (totals[r.stat] || 0) + r.amount;
-  });
-  const totLines = Object.keys(totals).map(s => `${s}: ${totals[s]}`);
-  const exportText = 'Build:\n' + lines.join('\n') + '\n\nTotals:\n' + totLines.join('\n');
-  navigator.clipboard.writeText(exportText).then(()=> alert('Export copied to clipboard.'), ()=> alert('Could not copy.'));
-}
-
-function clearBuild(){
-  if(!confirm('Clear current build?')) return;
-  build = [];
-  saveToLocal();
-  renderBuild();
-  updateLinkField();
-  window.history.replaceState(null, '', window.location.origin + window.location.pathname);
-}
-
-function saveToLocal(){
-  try{ localStorage.setItem('build_maker_build', JSON.stringify(build)); }catch(e){}
-}
-
-function loadFromLocal(){
-  try{
-    const raw = localStorage.getItem('build_maker_build');
-    if(!raw) return;
-    const parsed = JSON.parse(raw);
-    if(Array.isArray(parsed)){
-      build = parsed;
+  const d = decodeData(m[1]);
+  if(!d) return;
+  build = d.build || [];
+  if(d.equipmentIds){
+    for(const [s,id] of Object.entries(d.equipmentIds)){
+      equipment[s] = ITEMS.find(i=>i.id===id) || null;
     }
-  }catch(e){}
+  }
 }
 
-function cryptoRandomId(){
-  return 'id-' + Math.random().toString(36).slice(2,9);
-}
+function clearAll(){ if(!confirm('Clear build?')) return; build = []; equipment = {Weapon:null,Ability:null,Armor:null,Accessory:null}; updateLink(); renderBuild(); renderEquipment(); }
+
+function cryptoId(){ return 'id-'+Math.random().toString(36).slice(2,9); }
+
+function initTheme(){ const t = localStorage.getItem('theme') || 'light'; if(t === 'dark'){ document.documentElement.classList.add('dark'); } }
+function toggleTheme(){ document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); }
+
 window.addEventListener('DOMContentLoaded', ()=>{
+  initTheme();
   renderQuests();
-  loadFromLocal();
   loadFromFragment();
   renderBuild();
-  updateLinkField();
-
-  document.getElementById('generateLink').addEventListener('click', generateLink);
-  document.getElementById('copyLink').addEventListener('click', copyLinkField);
-  document.getElementById('copyTextExport').addEventListener('click', copyTextExport);
-  document.getElementById('clear').addEventListener('click', clearBuild);
+  renderEquipment();
+  document.getElementById('generateLink').onclick = updateLink;
+  document.getElementById('copyLink').onclick = ()=>{ const f = document.getElementById('linkField'); f.select(); document.execCommand('copy'); alert('Link copied.'); };
+  document.getElementById('clear').onclick = clearAll;
+  document.getElementById('themeToggle').onclick = toggleTheme;
 });
-
 </script>
 </body>
 </html>
+
