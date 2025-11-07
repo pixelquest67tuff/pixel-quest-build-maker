@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Build Maker — Quest stat picker</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen p-6">
+<div class="max-w-4xl mx-auto">
+<header class="mb-6">
+<h1 class="text-3xl font-semibold">Build Maker — Quest stat picker</h1>
+<p class="text-sm text-slate-600">Pick quests, choose one of two stat rewards for each.</p>
+</header>
+
+
+<main class="grid md:grid-cols-2 gap-6">
+<section>
+<div class="bg-white rounded-xl shadow p-4">
+<h2 class="text-xl font-medium mb-3">Available quests</h2>
+<div id="quests" class="space-y-3"></div>
+</div>
+
+
+<div class="bg-white rounded-xl shadow p-4 mt-4">
+<h2 class="text-xl font-medium mb-3">Share / Load</h2>
+<div class="flex gap-2 mb-3">
+<button id="generateLink" class="px-3 py-2 rounded bg-indigo-600 text-white">Generate link</button>
+<button id="copyLink" class="px-3 py-2 rounded border">Copy link</button>
+<button id="clear" class="px-3 py-2 rounded border">Clear build</button>
+</div>
+<input id="linkField" class="w-full rounded border p-2 text-sm" readonly />
+<p class="text-xs text-slate-500 mt-2">Tip: Block Parry Dodge.</p>
+</div>
+</section>
+
+
+<section>
+<div class="bg-white rounded-xl shadow p-4">
+<h2 class="text-xl font-medium mb-3">Your build</h2>
+<div id="buildList" class="space-y-2 mb-3"></div>
+<div class="border-t pt-3">
+<h3 class="font-medium">Total stats</h3>
+<div id="totals" class="text-sm text-slate-700 mt-2"></div>
+</div>
+</div>
+
+
+<div class="bg-white rounded-xl shadow p-4 mt-4">
+<h2 class="text-xl font-medium mb-3">Quick export</h2>
+<button id="copyTextExport" class="px-3 py-2 rounded bg-emerald-500 text-white">Copy simple export</button>
+<p class="text-xs text-slate-500 mt-2">Exports a summary of your build.</p>
+</div>
+</section>
+</main>
+
+
+<footer class="text-xs text-slate-500 mt-6">Built for the Roblox game Pixel Quest!</footer>
+</div>
+
+
+<script>
+const QUESTS = [
+{id:'q01',title:'Beach Boss Slayer III',desc:'',rewards:[{stat:'Attack',amount:2},{stat:'Dexterity',amount:3}]},
+{id:'q02',title:'Mermaid Cove Explorer',desc:'',rewards:[{stat:'Vitality',amount:3},{stat:'Dexterity',amount:2}]},
+{id:'q03',title:'Mermaid Cove Speedrunner',desc:'',rewards:[{stat:'Speed',amount:5},{stat:'Defense',amount:2}]},
+{id:'q04',title:'Bandit Beater',desc:'',rewards:[{stat:'Max Health',amount:25},{stat:'Max Mana',amount:25}]},
+{id:'q05',title:'Pirate Island Victory II',desc:'',rewards:[{stat:'Max Health',amount:10},{stat:'Attack',amount:2}]},
+{id:'q06',title:'Pirate Island Speedrunner',desc:'',rewards:[{stat:'Speed',amount:3},{stat:'Dexterity',amount:5}]},
+{id:'q07',title:'Woodland Boss Slayer III',desc:'',rewards:[{stat:'Vitality',amount:8},{stat:'Attack',amount:4}]},
+{id:'q08',title:'Into the Thick of it!',desc:'',rewards:[{stat:'Max Mana',amount:25},{stat:'Max Health',amount:10}]},
+{id:'q09',title:'Wooded Thicket Victory II',desc:'',rewards:[{stat:'Attack',amount:5},{stat:'Dexterity',amount:8}]},
+{id:'q10',title:'Wooded Thicket Speedrunner',desc:'',rewards:[{stat:'Speed',amount:5},{stat:'Defense',amount:3}]},
+{id:'q11',title:'Woodlands Ruins Victory I',desc:'',rewards:[{stat:'Max Health',amount:25},{stat:'Speed',amount:5}]},
+{id:'q12',title:'Woodlands Ruins Victory II',desc:'',rewards:[{stat:'Speed',amount:5},{stat:'Dexterity',amount:5}]},
+{id:'q13',title:'Mushroom Den Explorer I',desc:'',rewards:[{stat:'Vitality',amount:3},{stat:'Dexterity',amount:6}]},
+{id:'q14',title:'Mushroom Den Explorer II',desc:'',rewards:[{stat:'Max Mana',amount:25},{stat:'Wisdom',amount:8}]},
+{id:'q15',title:'Mushroom Den Explorer III',desc:'',rewards:[{stat:'Vitality',amount:3},{stat:'Dexterity',amount:2}]},
+{id:'q16',title:'Mushroom Den Speedrunner',desc:'',rewards:[{stat:'Attack',amount:7},{stat:'Defense',amount:2}]},
+{id:'q17',title:'The Bog Speedrunner I',desc:'',rewards:[{stat:'Speed',amount:5},{stat:'Attack',amount:2}]},
+{id:'q18',title:'The Bog Speedrunner II',desc:'',rewards:[{stat:'Vitality',amount:5},{stat:'Wisdom',amount:5}]},
+{id:'q19',title:'The Bog Speedrunner III',desc:'',rewards:[{stat:'Speed',amount:5},{stat:'Attack',amount:5}]},
+{id:'q20',title:'Bog Gator Brawl',desc:'',rewards:[{stat:'Vitality',amount:3},{stat:'Dexterity',amount:2}]},
+{id:'q21',title:'Curse of the Bog',desc:'',rewards:[{stat:'Max Health',amount:30},{stat:'Dexterity',amount:8}]},
+{id:'q22',title:'Catacombs Explorer II',desc:'',rewards:[{stat:'Vitality',amount:5},{stat:'Speed',amount:6}]},
+{id:'q23',title:'Catacombs Speedrunner',desc:'',rewards:[{stat:'Defense',amount:3},{stat:'Dexterity',amount:6}]},
+{id:'q24',title:'Worm Nest Explorer I',desc:'',rewards:[{stat:'Wisdom',amount:5},{stat:'Max Mana',amount:25}]},
+{id:'q25',title:'Worm Nest Speedrunner',desc:'',rewards:[{stat:'Defense',amount:3},{stat:'Attack',amount:8}]},
+{id:'q26',title:'Bounty: Snow Kings',desc:'',rewards:[{stat:'Attack',amount:6},{stat:'Vitality',amount:2}]},
+{id:'q27',title:'Bounty: Snow Goblins',desc:'',rewards:[{stat:'Wisdom',amount:6},{stat:'Vitality',amount:3}]},
+{id:'q28',title:'Ice Forest Speedrunner',desc:'',rewards:[{stat:'Attack',amount:5},{stat:'Defense',amount:2}]},
+{id:'q29',title:'Snow Forest Protector',desc:'',rewards:[{stat:'Max Mana',amount:20},{stat:'Max Health',amount:10}]},
+{id:'q30',title:'Ice Forest Victory',desc:'',rewards:[{stat:'Attack',amount:5},{stat:'Dexterity',amount:3}]},
+{id:'q31',title:'Ice Forest Explorer',desc:'',rewards:[{stat:'Max Mana',amount:35},{stat:'Defense',amount:2}]},
+{id:'q32',title:'Arctic Palace Speedrunner',desc:'',rewards:[{stat:'Speed',amount:5},{stat:'Defense',amount:3}]}
+];
+
+let build = [];
+
+function renderQuests(){
+  const container = document.getElementById('quests');
+  container.innerHTML = '';
+  QUESTS.forEach(q => {
+    const el = document.createElement('div');
+    el.className = 'p-3 border rounded-md bg-slate-50';
+    el.innerHTML = `
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="font-medium">${q.title}</div>
+          <div class="text-xs text-slate-600">${q.desc}</div>
+        </div>
+        <div class="text-xs text-slate-500">${q.rewards[0].amount} / ${q.rewards[1].amount}</div>
+      </div>
+      <div class="mt-3 flex gap-2">
+        <button class="chooseBtn px-3 py-1 rounded border" data-qid="${q.id}" data-choice="0">Choose ${q.rewards[0].stat} (+${q.rewards[0].amount})</button>
+        <button class="chooseBtn px-3 py-1 rounded border" data-qid="${q.id}" data-choice="1">Choose ${q.rewards[1].stat} (+${q.rewards[1].amount})</button>
+      </div>
+    `;
+    container.appendChild(el);
+  });
+
+  document.querySelectorAll('.chooseBtn').forEach(b => {
+    b.addEventListener('click', () => {
+      const qid = b.dataset.qid;
+      const choice = Number(b.dataset.choice);
+      addToBuild(qid, choice);
+    });
+  });
+}
+
+function addToBuild(questId, choiceIndex){
+  if(build.some(item => item.questId === questId)){
+    alert('You already picked that quest. Remove it first if you want to change.');
+    return;
+  }
+  const item = { id: cryptoRandomId(), questId, choiceIndex };
+  build.push(item);
+  saveToLocal();
+  renderBuild();
+  updateLinkField();
+}
+
+function removeFromBuild(id){
+  build = build.filter(x => x.id !== id);
+  saveToLocal();
+  renderBuild();
+  updateLinkField();
+}
+
+function renderBuild(){
+  const el = document.getElementById('buildList');
+  el.innerHTML = '';
+  if(build.length === 0){
+    el.innerHTML = '<div class="text-slate-500">No quests selected yet.</div>';
+  }
+  build.forEach(item => {
+    const q = QUESTS.find(x => x.id === item.questId);
+    const choice = q.rewards[item.choiceIndex];
+    const row = document.createElement('div');
+    row.className = 'flex justify-between items-center p-2 border rounded';
+    row.innerHTML = `
+      <div>
+        <div class="font-medium">${q.title}</div>
+        <div class="text-xs text-slate-600">Picked: ${choice.stat} (+${choice.amount})</div>
+      </div>
+      <div class="flex gap-2 items-center">
+        <button class="text-sm px-2 py-1 border rounded" onclick="removeFromBuild('${item.id}')">Remove</button>
+      </div>
+    `;
+    el.appendChild(row);
+  });
+  renderTotals();
+}
+
+function renderTotals(){
+  const totals = {};
+  build.forEach(item => {
+    const q = QUESTS.find(x => x.id === item.questId);
+    const r = q.rewards[item.choiceIndex];
+    totals[r.stat] = (totals[r.stat] || 0) + r.amount;
+  });
+  const container = document.getElementById('totals');
+  if(Object.keys(totals).length === 0){
+    container.innerHTML = '<div class="text-slate-500">No stat gains yet.</div>';
+    return;
+  }
+  container.innerHTML = Object.keys(totals).map(s => `<div>${s}: <strong>${totals[s]}</strong></div>`).join('');
+}
+
+function encodeBuild(b){
+  const json = JSON.stringify(b);
+  return btoa(encodeURIComponent(json));
+}
+function decodeBuild(s){
+  try{
+    const json = decodeURIComponent(atob(s));
+    return JSON.parse(json);
+  }catch(e){
+    return null;
+  }
+}
+
+function updateLinkField(){
+  const linkField = document.getElementById('linkField');
+  if(build.length === 0){ linkField.value = ''; return; }
+  const encoded = encodeBuild(build);
+  const url = window.location.origin + window.location.pathname + '#build=' + encoded;
+  linkField.value = url;
+}
+
+function generateLink(){
+  if(build.length === 0){ alert('No quests selected.'); return; }
+  const encoded = encodeBuild(build);
+  const newUrl = window.location.origin + window.location.pathname + '#build=' + encoded;
+  window.history.replaceState(null, '', newUrl);
+  updateLinkField();
+  alert('Link generated. You can copy it or share it.');
+}
+
+function loadFromFragment(){
+  const frag = window.location.hash;
+  if(!frag) return;
+  const m = frag.match(/build=([^&]+)/);
+  if(!m) return;
+  const decoded = decodeBuild(m[1]);
+  if(!decoded || !Array.isArray(decoded)){
+    alert('Couldnt parse build from link.');
+    return;
+  }
+  const imported = [];
+  for(const item of decoded){
+    if(!item.questId || typeof item.choiceIndex !== 'number') continue;
+    if(!QUESTS.find(q=>q.id===item.questId)) continue;
+    imported.push({ id: cryptoRandomId(), questId: item.questId, choiceIndex: item.choiceIndex });
+  }
+  build = imported;
+  saveToLocal();
+  renderBuild();
+  updateLinkField();
+}
+
+function copyLinkField(){
+  const f = document.getElementById('linkField');
+  if(!f.value){ alert('No link to copy. generate one first fuckiung idiot!'); return; }
+  f.select();
+  document.execCommand('copy');
+  alert('Link copied to clipboard.');
+}
+
+function copyTextExport(){
+  if(build.length === 0){ alert('No quests selected.'); return; }
+  const lines = build.map(item => {
+    const q = QUESTS.find(x => x.id === item.questId);
+    const r = q.rewards[item.choiceIndex];
+    return `${q.title} — ${r.stat} (+${r.amount})`;
+  });
+  const totals = {};
+  build.forEach(item => {
+    const q = QUESTS.find(x => x.id === item.questId);
+    const r = q.rewards[item.choiceIndex];
+    totals[r.stat] = (totals[r.stat] || 0) + r.amount;
+  });
+  const totLines = Object.keys(totals).map(s => `${s}: ${totals[s]}`);
+  const exportText = 'Build:\n' + lines.join('\n') + '\n\nTotals:\n' + totLines.join('\n');
+  navigator.clipboard.writeText(exportText).then(()=> alert('Export copied to clipboard.'), ()=> alert('Could not copy.'));
+}
+
+function clearBuild(){
+  if(!confirm('Clear current build?')) return;
+  build = [];
+  saveToLocal();
+  renderBuild();
+  updateLinkField();
+  window.history.replaceState(null, '', window.location.origin + window.location.pathname);
+}
+
+function saveToLocal(){
+  try{ localStorage.setItem('build_maker_build', JSON.stringify(build)); }catch(e){}
+}
+
+function loadFromLocal(){
+  try{
+    const raw = localStorage.getItem('build_maker_build');
+    if(!raw) return;
+    const parsed = JSON.parse(raw);
+    if(Array.isArray(parsed)){
+      build = parsed;
+    }
+  }catch(e){}
+}
+
+function cryptoRandomId(){
+  return 'id-' + Math.random().toString(36).slice(2,9);
+}
+window.addEventListener('DOMContentLoaded', ()=>{
+  renderQuests();
+  loadFromLocal();
+  loadFromFragment();
+  renderBuild();
+  updateLinkField();
+
+  document.getElementById('generateLink').addEventListener('click', generateLink);
+  document.getElementById('copyLink').addEventListener('click', copyLinkField);
+  document.getElementById('copyTextExport').addEventListener('click', copyTextExport);
+  document.getElementById('clear').addEventListener('click', clearBuild);
+});
+
+</script>
+</body>
+</html>
